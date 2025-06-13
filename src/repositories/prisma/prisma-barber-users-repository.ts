@@ -34,4 +34,23 @@ export class PrismaBarberUsersRepository implements BarberUsersRepository {
   async delete(id: string): Promise<void> {
     await prisma.user.delete({ where: { id } })
   }
+
+  async update(
+    id: string,
+    userData: Prisma.UserUpdateInput,
+    profileData: Prisma.ProfileUpdateInput,
+  ): Promise<{ user: User; profile: Profile | null }> {
+    const user = await prisma.user.update({
+      where: { id },
+      data: {
+        ...userData,
+        profile: {
+          update: profileData,
+        },
+      },
+      include: { profile: true },
+    })
+
+    return { user, profile: user.profile }
+  }
 }

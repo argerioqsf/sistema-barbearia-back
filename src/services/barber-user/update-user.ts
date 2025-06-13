@@ -26,16 +26,10 @@ export class UpdateUserService {
       throw new Error('User not found')
     }
 
-    await this.repository.delete(data.id)
-    const { user, profile } = await this.repository.create(
+    const { user, profile } = await this.repository.update(
+      data.id,
       {
-        id: data.id,
         name: data.name,
-        email: existing.email,
-        password: existing.password,
-        active: existing.active,
-        organization: { connect: { id: existing.organizationId } },
-        unit: { connect: { id: existing.unitId } },
       },
       {
         phone: data.phone,

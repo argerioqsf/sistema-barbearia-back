@@ -11,4 +11,9 @@ export interface BarberUsersRepository {
   ): Promise<(User & { profile: Profile | null; unit: Unit | null }) | null>
   findByEmail(email: string): Promise<User | null>
   delete(id: string): Promise<void>
+  update(
+    id: string,
+    userData: Prisma.UserUpdateInput,
+    profileData: Prisma.ProfileUpdateInput,
+  ): Promise<{ user: User; profile: Profile | null }>
 }
