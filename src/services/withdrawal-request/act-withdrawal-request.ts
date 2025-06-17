@@ -1,20 +1,13 @@
 import { UserToken } from '@/http/controllers/authenticate-controller'
-import { BarberUsersRepository } from '@/repositories/barber-users-repository'
-import { CashRegisterRepository } from '@/repositories/cash-register-repository'
 import { OrganizationRepository } from '@/repositories/organization-repository'
 import { ProfilesRepository } from '@/repositories/profiles-repository'
-import { TransactionRepository } from '@/repositories/transaction-repository'
 import { UnitRepository } from '@/repositories/unit-repository'
 import { WithdrawalRequestRepository } from '@/repositories/withdrawal-request-repository'
-import { TransactionType, WithdrawalRequestStatus } from '@prisma/client'
-import { validateWithdrawal } from '@/utils/withdrawal'
+import { WithdrawalRequestStatus } from '@prisma/client'
 
 export class ActWithdrawalRequestService {
   constructor(
     private repository: WithdrawalRequestRepository,
-    private userRepository: BarberUsersRepository,
-    private cashRegisterRepository: CashRegisterRepository,
-    private transactionRepository: TransactionRepository,
     private organizationRepository: OrganizationRepository,
     private profileRepository: ProfilesRepository,
     private unitRepository: UnitRepository,
@@ -23,46 +16,30 @@ export class ActWithdrawalRequestService {
   async execute(id: string, status: WithdrawalRequestStatus, user: UserToken) {
     const request = await this.repository.findById(id)
     if (!request) throw new Error('Request not found')
-    if (request.status !== 'WAITING')
-      throw new Error('Request already processed')
 
-    if (user.role === 'MANAGER' && request.unitId !== user.unitId) {
-      throw new Error('Unauthorized')
-    }
-    if (
-      user.role === 'OWNER' &&
-      request.unit.organizationId !== user.organizationId
-    ) {
-      throw new Error('Unauthorized')
-    }
-    if (
-      user.role !== 'MANAGER' &&
-      user.role !== 'OWNER' &&
-      user.role !== 'ADMIN'
-    ) {
-      throw new Error('Unauthorized')
-    }
+      await this.profileRepository.incrementBalance(request.applicantId, request.amount)
+      if (request.loanValue) {
+        await this.unitRepository.incrementBalance(request.unitId, request.loanValue)
+        await this.organizationRepository.incrementBalance(
+          request.unit.organizationId,
+          request.loanValue,
+        )
+      }
 
-    if (status === 'CANCELLED') {
-      if (
-        user.sub !== request.applicantId &&
-        user.role !== 'ADMIN' &&
-        user.role !== 'MANAGER' &&
-        user.role !== 'OWNER'
-      ) {
-        throw new Error('Unauthorized')
+    if (status === 'REJECTED') {
+      await this.profileRepository.incrementBalance(request.applicantId, request.amount)
+      if (request.loanValue) {
+        await this.unitRepository.incrementBalance(request.unitId, request.loanValue)
+        await this.organizationRepository.incrementBalance(
+          request.unit.organizationId,
+          request.loanValue,
+        )
       }
       return {
         request: await this.repository.update(id, {
           status,
           userWhoActed: { connect: { id: user.sub } },
         }),
-      }
-    }
-
-    if (status === 'ACCEPTED') {
-      const approver = await this.userRepository.findById(user.sub)
-      if (!approver) throw new Error('User not found')
       const session = await this.cashRegisterRepository.findOpenByUnit(
         request.unitId,
       )
