@@ -5,6 +5,7 @@ import { ProfilesRepository } from '@/repositories/profiles-repository'
 import { Transaction, TransactionType } from '@prisma/client'
 import { UnitRepository } from '@/repositories/unit-repository'
 import { OrganizationRepository } from '@/repositories/organization-repository'
+import { validateWithdrawal } from '@/utils/withdrawal'
 
 interface CreateTransactionRequest {
   userId: string
@@ -83,21 +84,15 @@ export class CreateTransactionService {
               : balanceUser - -increment
             : undefined
 
-        const remainingBalance =
-          balanceUser > 0 ? balanceUser - -increment : increment
+        const remainingBalance = validateWithdrawal(
+          -increment,
+          balanceUser,
+          balanceUnit,
+          effectiveUser.unit?.allowsLoan ?? false,
+        )
 
+        await this.profileRepository.incrementBalance(effectiveUser.id, increment)
         if (remainingBalance < 0) {
-          if (!effectiveUser.unit?.allowsLoan) {
-            throw new Error('Insufficient balance for withdrawal')
-          }
-          const remainingBalanceRelative = -remainingBalance
-          if (remainingBalanceRelative > balanceUnit) {
-            throw new Error('Withdrawal amount greater than unit balance')
-          }
-          await this.profileRepository.incrementBalance(
-            effectiveUser.id,
-            increment,
-          )
           await this.unitRepository.incrementBalance(
             effectiveUser.unitId,
             remainingBalance,
@@ -105,11 +100,6 @@ export class CreateTransactionService {
           await this.organizationRepository.incrementBalance(
             effectiveUser.organizationId,
             remainingBalance,
-          )
-        } else {
-          await this.profileRepository.incrementBalance(
-            effectiveUser.id,
-            increment,
           )
         }
       } else {
