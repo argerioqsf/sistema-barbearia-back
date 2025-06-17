@@ -614,7 +614,11 @@
           "name": "Authorization",
           "value": "Bearer {{ token }}"
         }
-      ]
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"amount\": 20\n}"
+      }
     },
     {
       "_id": "req_list_withdraw_requests",

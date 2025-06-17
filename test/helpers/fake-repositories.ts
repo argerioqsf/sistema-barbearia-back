@@ -980,3 +980,58 @@ export class InMemoryAppointmentRepository implements AppointmentRepository {
     return this.appointments.find((a) => a.id === id) ?? null
   }
 }
+
+export class FakeWithdrawalRequestRepository implements WithdrawalRequestRepository {
+  public requests: DetailedWithdrawalRequest[] = []
+
+  async create(data: Prisma.WithdrawalRequestCreateInput): Promise<DetailedWithdrawalRequest> {
+    const req: DetailedWithdrawalRequest = {
+      id: randomUUID(),
+      applicantId: (data.applicant as any).connect.id,
+      unitId: (data.unit as any).connect.id,
+      amount: data.amount as number,
+      transactionId: null,
+      status: (data.status as any) ?? 'WAITING',
+      userWhoActedId: null,
+      createdAt: new Date(),
+      applicant: { id: (data.applicant as any).connect.id, profile: null } as any,
+      unit: { id: (data.unit as any).connect.id, organizationId: 'org-1', totalBalance: 0, allowsLoan: false, name: '', slug: '' },
+      transaction: null,
+      userWhoActed: null,
+    }
+    this.requests.push(req)
+    return req
+  }
+
+  async findMany(where: Prisma.WithdrawalRequestWhereInput = {}): Promise<DetailedWithdrawalRequest[]> {
+    return this.requests.filter((r: any) => {
+      if (where.unitId && r.unitId !== where.unitId) return false
+      if (where.applicantId && r.applicantId !== where.applicantId) return false
+      if (where.unit && 'organizationId' in (where.unit as any)) {
+        return r.unit.organizationId === (where.unit as any).organizationId
+      }
+      return true
+    })
+  }
+
+  async findById(id: string): Promise<DetailedWithdrawalRequest | null> {
+    return this.requests.find((r) => r.id === id) ?? null
+  }
+
+  async update(id: string, data: Prisma.WithdrawalRequestUpdateInput): Promise<DetailedWithdrawalRequest> {
+    const index = this.requests.findIndex((r) => r.id === id)
+    if (index < 0) throw new Error('Request not found')
+    const current = this.requests[index]
+    const updated: any = { ...current }
+    if (data.status) updated.status = data.status
+    if (data.amount) updated.amount = data.amount
+    if (data.transaction && 'connect' in data.transaction!) {
+      updated.transactionId = (data.transaction as any).connect.id
+    }
+    if (data.userWhoActed && 'connect' in data.userWhoActed!) {
+      updated.userWhoActedId = (data.userWhoActed as any).connect.id
+    }
+    this.requests[index] = updated
+    return updated
+  }
+}

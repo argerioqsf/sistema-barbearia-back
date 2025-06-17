@@ -366,6 +366,7 @@ async function main() {
     data: {
       applicant: { connect: { id: barber.id } },
       unit: { connect: { id: mainUnit.id } },
+      amount: 20,
     },
   })
 
