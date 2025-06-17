@@ -367,6 +367,7 @@ async function main() {
       applicant: { connect: { id: barber.id } },
       unit: { connect: { id: mainUnit.id } },
       amount: 20,
+      loanValue: null,
     },
   })
 

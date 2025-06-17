@@ -990,6 +990,7 @@ export class FakeWithdrawalRequestRepository implements WithdrawalRequestReposit
       applicantId: (data.applicant as any).connect.id,
       unitId: (data.unit as any).connect.id,
       amount: data.amount as number,
+      loanValue: (data as any).loanValue ?? null,
       transactionId: null,
       status: (data.status as any) ?? 'WAITING',
       userWhoActedId: null,
@@ -1025,6 +1026,7 @@ export class FakeWithdrawalRequestRepository implements WithdrawalRequestReposit
     const updated: any = { ...current }
     if (data.status) updated.status = data.status
     if (data.amount) updated.amount = data.amount
+    if (data.loanValue) updated.loanValue = data.loanValue as any
     if (data.transaction && 'connect' in data.transaction!) {
       updated.transactionId = (data.transaction as any).connect.id
     }

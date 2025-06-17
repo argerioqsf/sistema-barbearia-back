@@ -301,6 +301,7 @@ model WithdrawalRequest {
   applicantId    String
   unitId         String
   amount         Float
+  loanValue      Float?
   transactionId  String?
   status         WithdrawalRequestStatus @default(WAITING)
   userWhoActedId String?
