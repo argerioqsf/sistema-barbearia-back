@@ -49,7 +49,6 @@
     "dotenv": "16.4.1",
     "fastify": "4.26.0",
     "fastify-multer": "2.0.3",
-    "pino": "9.7.0",
     "zod": "3.22.4"
   }
 }

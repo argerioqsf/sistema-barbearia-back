@@ -5,7 +5,7 @@ import multer from 'fastify-multer'
 import fs from 'fs'
 import path from 'path'
 import { createHash } from 'crypto'
-import { logger } from './lib/logger'
+import { logQueue } from './queues/log-queue'
 import { PrismaLogsRepository } from './repositories/prisma/prisma-logs-repository'
 import { uploadDir, upload } from './lib/upload'
 import { ZodError } from 'zod'
@@ -27,7 +27,7 @@ import { unitRoute } from './http/controllers/unit/route'
 import { sessionRoute } from './http/controllers/session/route'
 import { logRoute } from './http/controllers/log/route'
 
-export const app = fastify({ logger })
+export const app = fastify()
 
 app.register(multer.contentParser)
 
@@ -145,14 +145,7 @@ app.addHook('onResponse', async (request) => {
       ? createHash('sha256').update(payloadStr).digest('hex')
       : undefined
 
-    logger.info({
-      userId: (request as any).user?.sub,
-      method: request.method,
-      url: request.url,
-      payload: payloadStr,
-    })
-
-    await logsRepository.create({
+    logQueue.enqueue({
       method: request.method,
       url: request.url,
       payloadHash,
@@ -161,7 +154,7 @@ app.addHook('onResponse', async (request) => {
         : undefined,
     })
   } catch (err) {
-    logger.error(err)
+    console.error(err)
   }
 })
 
