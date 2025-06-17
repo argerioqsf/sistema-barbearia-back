@@ -1,3 +1,0 @@
--- AlterTable
-ALTER TABLE `withdrawal_requests` ADD COLUMN `amount` DOUBLE NOT NULL DEFAULT 0 AFTER `unitId`;
-ALTER TABLE `withdrawal_requests` MODIFY `status` ENUM('ACCEPTED','REJECTED','WAITING','CANCELLED') NOT NULL DEFAULT 'WAITING';
