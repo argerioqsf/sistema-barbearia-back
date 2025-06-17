@@ -12,6 +12,7 @@ interface CreateTransactionRequest {
   type: TransactionType
   description: string
   amount: number
+  proofUrl?: string
 }
 
 interface CreateTransactionResponse {
@@ -57,6 +58,7 @@ export class CreateTransactionService {
       type: data.type,
       description: data.description,
       amount: data.amount,
+      proofUrl: data.proofUrl,
       session: { connect: { id: session.id } },
     })
     let surplusValue: number | undefined

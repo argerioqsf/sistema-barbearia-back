@@ -567,7 +567,7 @@
       "url": "{{ baseURL }}/transactions",
       "body": {
         "mimeType": "application/json",
-        "text": "{\n  \"userId\": \"\",\n  \"unitId\": \"\",\n  \"affectedUserId\": \"\",\n  \"type\": \"ADDITION\",\n  \"description\": \"\",\n  \"amount\": 0\n}"
+        "text": "{\n  \"userId\": \"\",\n  \"unitId\": \"\",\n  \"affectedUserId\": \"\",\n  \"proofUrl\": \"\",\n  \"type\": \"ADDITION\",\n  \"description\": \"\",\n  \"amount\": 0\n}"
       },
       "headers": [
         {

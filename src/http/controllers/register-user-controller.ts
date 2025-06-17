@@ -23,7 +23,11 @@ export async function registerUser(
 
   const data = registerBodySchema.parse(request.body)
 
-  if (data.role === 'ADMIN' || data.role === 'OWNER') {
+  if (
+    data.role === 'ADMIN' ||
+    data.role === 'OWNER' ||
+    data.role === 'MANAGER'
+  ) {
     return replay.status(403).send({ message: 'Unauthorized role' })
   }
 

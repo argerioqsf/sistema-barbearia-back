@@ -11,11 +11,17 @@ export async function CreateTransactionController(
     type: z.enum(['ADDITION', 'WITHDRAWAL']),
     description: z.string(),
     amount: z.number(),
+    proofUrl: z.string().optional(),
     affectedUserId: z.string().optional(),
   })
   const data = bodySchema.parse(request.body)
   const user = request.user as UserToken
-  if (data.affectedUserId && user.role !== 'ADMIN' && user.role !== 'OWNER') {
+  if (
+    data.affectedUserId &&
+    user.role !== 'ADMIN' &&
+    user.role !== 'OWNER' &&
+    user.role !== 'MANAGER'
+  ) {
     return reply.status(403).send({ message: 'Unauthorized' })
   }
   const userId = user.sub
@@ -24,6 +30,7 @@ export async function CreateTransactionController(
     type: data.type,
     description: data.description,
     amount: data.amount,
+    proofUrl: data.proofUrl,
     userId,
     affectedUserId: data.affectedUserId,
   })

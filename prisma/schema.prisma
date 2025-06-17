@@ -12,6 +12,7 @@ enum Role {
   BARBER
   CLIENT
   ATTENDANT
+  MANAGER
   OWNER
 }
 
@@ -138,6 +139,7 @@ model Transaction {
   cashRegisterSessionId String?
   type                  TransactionType
   description           String
+  proofUrl              String?
   amount                Float
   createdAt             DateTime        @default(now())
 
@@ -278,3 +280,4 @@ model Unit {
 
   @@map("units")
 }
+

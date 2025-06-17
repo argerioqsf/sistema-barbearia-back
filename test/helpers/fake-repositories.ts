@@ -300,6 +300,7 @@ export class FakeTransactionRepository implements TransactionRepository {
       type: data.type as TransactionType,
       description: data.description as string,
       amount: data.amount as number,
+      proofUrl: (data.proofUrl as string | null) ?? null,
       createdAt: new Date(),
     }
     this.transactions.push(tr)

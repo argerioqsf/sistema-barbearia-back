@@ -4,6 +4,7 @@ import fastify from 'fastify'
 import multer from 'fastify-multer'
 import fs from 'fs'
 import path from 'path'
+import { logger } from './lib/logger'
 import { uploadDir, upload } from './lib/upload'
 import { ZodError } from 'zod'
 import { env } from './env'
@@ -23,7 +24,7 @@ import { organizationRoute } from './http/controllers/organization/route'
 import { unitRoute } from './http/controllers/unit/route'
 import { sessionRoute } from './http/controllers/session/route'
 
-export const app = fastify()
+export const app = fastify({ logger })
 
 app.register(multer.contentParser)
 
@@ -128,6 +129,23 @@ app.register(unitRoute)
 app.register(saleRoute)
 app.register(reportRoute)
 app.register(configRoute)
+
+app.addHook('onResponse', async (request) => {
+  try {
+    const body = (request as any).body
+    const payload =
+      body && Object.keys(body).length > 0 ? JSON.stringify(body) : undefined
+
+    logger.info({
+      userId: (request as any).user?.sub,
+      method: request.method,
+      url: request.url,
+      payload,
+    })
+  } catch (err) {
+    logger.error(err)
+  }
+})
 
 app.setErrorHandler((error, _, replay) => {
   if (error instanceof ZodError) {

@@ -116,6 +116,28 @@ async function main() {
     },
   })
 
+  const manager = await prisma.user.create({
+    data: {
+      name: 'Manager',
+      email: 'manager@barbershop.com',
+      password: passwordHash,
+      active: true,
+      organization: { connect: { id: organization.id } },
+      profile: {
+        create: {
+          phone: '969777888',
+          cpf: '99988877766',
+          genre: 'M',
+          birthday: '1990-01-01',
+          pix: 'managerpix',
+          role: Role.MANAGER,
+          totalBalance: 0,
+        },
+      },
+      unit: { connect: { id: mainUnit.id } },
+    },
+  })
+
   const barber = await prisma.user.create({
     data: {
       name: 'Barber',
@@ -353,6 +375,7 @@ async function main() {
     sale,
     pendingSale,
     itemCoupon,
+    manager,
     owner2,
   })
 }

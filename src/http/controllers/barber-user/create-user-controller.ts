@@ -30,8 +30,15 @@ export async function CreateBarberUserController(
   ) {
     return reply.status(403).send({ message: 'Unauthorized' })
   }
+  if (
+    data.role === 'MANAGER' &&
+    userToken.role !== 'ADMIN' &&
+    userToken.role !== 'OWNER'
+  ) {
+    return reply.status(403).send({ message: 'Unauthorized' })
+  }
   let unitId = userToken.unitId
-  if (userToken.role === 'ADMIN') {
+  if (userToken.role === 'ADMIN' || userToken.role === 'OWNER') {
     unitId = data.unitId ?? unitId
   }
   const { user, profile } = await service.execute({
