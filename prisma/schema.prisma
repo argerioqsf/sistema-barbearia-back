@@ -281,3 +281,16 @@ model Unit {
   @@map("units")
 }
 
+model Log {
+  id          String   @id @default(uuid())
+  userId      String?
+  method      String
+  url         String
+  payloadHash String?
+  createdAt   DateTime @default(now())
+
+  user User? @relation(fields: [userId], references: [id])
+
+  @@map("logs")
+}
+

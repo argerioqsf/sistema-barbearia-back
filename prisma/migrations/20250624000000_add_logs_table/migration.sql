@@ -1,0 +1,11 @@
+-- CreateTable
+CREATE TABLE `logs` (
+  `id` VARCHAR(191) NOT NULL,
+  `userId` VARCHAR(191),
+  `method` VARCHAR(191) NOT NULL,
+  `url` VARCHAR(191) NOT NULL,
+  `payloadHash` VARCHAR(191),
+  `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+  PRIMARY KEY (`id`),
+  CONSTRAINT `logs_userId_fkey` FOREIGN KEY (`userId`) REFERENCES `users` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
+);

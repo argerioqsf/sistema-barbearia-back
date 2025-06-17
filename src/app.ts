@@ -4,7 +4,9 @@ import fastify from 'fastify'
 import multer from 'fastify-multer'
 import fs from 'fs'
 import path from 'path'
+import { createHash } from 'crypto'
 import { logger } from './lib/logger'
+import { PrismaLogsRepository } from './repositories/prisma/prisma-logs-repository'
 import { uploadDir, upload } from './lib/upload'
 import { ZodError } from 'zod'
 import { env } from './env'
@@ -23,6 +25,7 @@ import { authRoute } from './http/controllers/auth/route'
 import { organizationRoute } from './http/controllers/organization/route'
 import { unitRoute } from './http/controllers/unit/route'
 import { sessionRoute } from './http/controllers/session/route'
+import { logRoute } from './http/controllers/log/route'
 
 export const app = fastify({ logger })
 
@@ -129,18 +132,33 @@ app.register(unitRoute)
 app.register(saleRoute)
 app.register(reportRoute)
 app.register(configRoute)
+app.register(logRoute)
+
+const logsRepository = new PrismaLogsRepository()
 
 app.addHook('onResponse', async (request) => {
   try {
     const body = (request as any).body
-    const payload =
+    const payloadStr =
       body && Object.keys(body).length > 0 ? JSON.stringify(body) : undefined
+    const payloadHash = payloadStr
+      ? createHash('sha256').update(payloadStr).digest('hex')
+      : undefined
 
     logger.info({
       userId: (request as any).user?.sub,
       method: request.method,
       url: request.url,
-      payload,
+      payload: payloadStr,
+    })
+
+    await logsRepository.create({
+      method: request.method,
+      url: request.url,
+      payloadHash,
+      user: (request as any).user?.sub
+        ? { connect: { id: (request as any).user.sub } }
+        : undefined,
     })
   } catch (err) {
     logger.error(err)

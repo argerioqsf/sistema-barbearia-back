@@ -881,6 +881,26 @@
           "value": "Bearer {{ token }}"
         }
       ]
+    },
+    {
+      "_id": "fld_logs",
+      "_type": "request_group",
+      "parentId": "wrk_9bc2c94a4e7579532748a266ff7bafa9",
+      "name": "Logs"
+    },
+    {
+      "_id": "req_list_logs",
+      "_type": "request",
+      "parentId": "fld_logs",
+      "name": "List logs",
+      "method": "GET",
+      "url": "{{ baseURL }}/logs",
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ token }}"
+        }
+      ]
     }
   ]
 }

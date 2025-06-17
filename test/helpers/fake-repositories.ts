@@ -17,6 +17,7 @@ import {
   Role,
   PasswordResetToken,
   Appointment,
+  Log,
 } from '@prisma/client'
 import { ProductRepository } from '../../src/repositories/product-repository'
 import { CouponRepository } from '../../src/repositories/coupon-repository'
@@ -39,6 +40,7 @@ import {
   AppointmentRepository,
   DetailedAppointment,
 } from '../../src/repositories/appointment-repository'
+import { LogsRepository } from '../../src/repositories/logs-repository'
 import { randomUUID } from 'crypto'
 import { ServiceRepository } from '../../src/repositories/service-repository'
 import { TransactionFull } from '../../src/repositories/prisma/prisma-transaction-repository'
@@ -978,5 +980,35 @@ export class InMemoryAppointmentRepository implements AppointmentRepository {
 
   async findById(id: string): Promise<DetailedAppointment | null> {
     return this.appointments.find((a) => a.id === id) ?? null
+  }
+}
+
+export class FakeLogsRepository implements LogsRepository {
+  constructor(public logs: Log[] = []) {}
+
+  async create(data: Prisma.LogUncheckedCreateInput): Promise<Log> {
+    const log: Log = {
+      id: randomUUID(),
+      userId: (data.user as any)?.connect?.id ?? null,
+      method: data.method as string,
+      url: data.url as string,
+      payloadHash: (data.payloadHash as string | null) ?? null,
+      createdAt: new Date(),
+    }
+    this.logs.push(log)
+    return log
+  }
+
+  async findMany(where: Prisma.LogWhereInput = {}): Promise<Log[]> {
+    return this.logs.filter((l: any) => {
+      if (where.userId && l.userId !== where.userId) return false
+      if (
+        where.createdAt &&
+        ((where.createdAt.gte && l.createdAt < where.createdAt.gte) ||
+          (where.createdAt.lte && l.createdAt > where.createdAt.lte))
+      )
+        return false
+      return true
+    })
   }
 }
