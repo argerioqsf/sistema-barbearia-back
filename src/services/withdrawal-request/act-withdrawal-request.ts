@@ -17,7 +17,10 @@ export class ActWithdrawalRequestService {
     const request = await this.repository.findById(id)
     if (!request) throw new Error('Request not found')
 
-      await this.profileRepository.incrementBalance(request.applicantId, request.amount)
+      const userRefund = request.amount - (request.loanValue ?? 0)
+      if (userRefund) {
+        await this.profileRepository.incrementBalance(request.applicantId, userRefund)
+      }
       if (request.loanValue) {
         await this.unitRepository.incrementBalance(request.unitId, request.loanValue)
         await this.organizationRepository.incrementBalance(
@@ -27,7 +30,10 @@ export class ActWithdrawalRequestService {
       }
 
     if (status === 'REJECTED') {
-      await this.profileRepository.incrementBalance(request.applicantId, request.amount)
+      const userRefund = request.amount - (request.loanValue ?? 0)
+      if (userRefund) {
+        await this.profileRepository.incrementBalance(request.applicantId, userRefund)
+      }
       if (request.loanValue) {
         await this.unitRepository.incrementBalance(request.unitId, request.loanValue)
         await this.organizationRepository.incrementBalance(
