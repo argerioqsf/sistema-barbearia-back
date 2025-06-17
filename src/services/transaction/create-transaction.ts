@@ -91,7 +91,10 @@ export class CreateTransactionService {
           effectiveUser.unit?.allowsLoan ?? false,
         )
 
-        await this.profileRepository.incrementBalance(effectiveUser.id, increment)
+        await this.profileRepository.incrementBalance(
+          effectiveUser.id,
+          increment,
+        )
         if (remainingBalance < 0) {
           await this.unitRepository.incrementBalance(
             effectiveUser.unitId,

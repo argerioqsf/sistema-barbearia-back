@@ -20,19 +20,26 @@ export class ActWithdrawalRequestService {
     private unitRepository: UnitRepository,
   ) {}
 
-
   async execute(id: string, status: WithdrawalRequestStatus, user: UserToken) {
     const request = await this.repository.findById(id)
     if (!request) throw new Error('Request not found')
-    if (request.status !== 'WAITING') throw new Error('Request already processed')
+    if (request.status !== 'WAITING')
+      throw new Error('Request already processed')
 
     if (user.role === 'MANAGER' && request.unitId !== user.unitId) {
       throw new Error('Unauthorized')
     }
-    if (user.role === 'OWNER' && request.unit.organizationId !== user.organizationId) {
+    if (
+      user.role === 'OWNER' &&
+      request.unit.organizationId !== user.organizationId
+    ) {
       throw new Error('Unauthorized')
     }
-    if (user.role !== 'MANAGER' && user.role !== 'OWNER' && user.role !== 'ADMIN') {
+    if (
+      user.role !== 'MANAGER' &&
+      user.role !== 'OWNER' &&
+      user.role !== 'ADMIN'
+    ) {
       throw new Error('Unauthorized')
     }
 
@@ -56,7 +63,9 @@ export class ActWithdrawalRequestService {
     if (status === 'ACCEPTED') {
       const approver = await this.userRepository.findById(user.sub)
       if (!approver) throw new Error('User not found')
-      const session = await this.cashRegisterRepository.findOpenByUnit(request.unitId)
+      const session = await this.cashRegisterRepository.findOpenByUnit(
+        request.unitId,
+      )
       if (!session) throw new Error('Cash register closed')
 
       const balanceUser = request.applicant.profile?.totalBalance ?? 0
@@ -79,10 +88,16 @@ export class ActWithdrawalRequestService {
       })
 
       try {
-        await this.profileRepository.incrementBalance(request.applicantId, -request.amount)
+        await this.profileRepository.incrementBalance(
+          request.applicantId,
+          -request.amount,
+        )
         if (remaining < 0) {
           await this.unitRepository.incrementBalance(request.unitId, remaining)
-          await this.organizationRepository.incrementBalance(request.unit.organizationId, remaining)
+          await this.organizationRepository.incrementBalance(
+            request.unit.organizationId,
+            remaining,
+          )
         }
         return {
           request: await this.repository.update(id, {

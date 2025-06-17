@@ -98,7 +98,7 @@
 
 "@esbuild/darwin-arm64@0.25.5":
   version "0.25.5"
-  resolved "https://registry.yarnpkg.com/@esbuild/darwin-arm64/-/darwin-arm64-0.25.5.tgz#49d8bf8b1df95f759ac81eb1d0736018006d7e34"
+  resolved "https://registry.npmjs.org/@esbuild/darwin-arm64/-/darwin-arm64-0.25.5.tgz"
   integrity sha512-GtaBgammVvdF7aPIgH2jxMDdivezgFu6iKpmT+48+F8Hhg5J/sfnDieg0aeG/jfSvkYQU2/pceFPDKlqZzwnfQ==
 
 "@esbuild/darwin-x64@0.19.12":

@@ -2,7 +2,10 @@ import { makeListWithdrawalRequests } from '@/services/@factories/withdrawal-req
 import { FastifyRequest, FastifyReply } from 'fastify'
 import { UserToken } from '../authenticate-controller'
 
-export async function ListWithdrawalRequestsController(request: FastifyRequest, reply: FastifyReply) {
+export async function ListWithdrawalRequestsController(
+  request: FastifyRequest,
+  reply: FastifyReply,
+) {
   const service = makeListWithdrawalRequests()
   const user = request.user as UserToken
   const { requests } = await service.execute(user)

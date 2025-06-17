@@ -1,4 +1,11 @@
-import { Prisma, WithdrawalRequest, User, Unit, Transaction, Profile } from '@prisma/client'
+import {
+  Prisma,
+  WithdrawalRequest,
+  User,
+  Unit,
+  Transaction,
+  Profile,
+} from '@prisma/client'
 
 export type DetailedWithdrawalRequest = WithdrawalRequest & {
   applicant: User & { profile: Profile | null }
@@ -8,8 +15,15 @@ export type DetailedWithdrawalRequest = WithdrawalRequest & {
 }
 
 export interface WithdrawalRequestRepository {
-  create(data: Prisma.WithdrawalRequestCreateInput): Promise<DetailedWithdrawalRequest>
-  findMany(where?: Prisma.WithdrawalRequestWhereInput): Promise<DetailedWithdrawalRequest[]>
+  create(
+    data: Prisma.WithdrawalRequestCreateInput,
+  ): Promise<DetailedWithdrawalRequest>
+  findMany(
+    where?: Prisma.WithdrawalRequestWhereInput,
+  ): Promise<DetailedWithdrawalRequest[]>
   findById(id: string): Promise<DetailedWithdrawalRequest | null>
-  update(id: string, data: Prisma.WithdrawalRequestUpdateInput): Promise<DetailedWithdrawalRequest>
+  update(
+    id: string,
+    data: Prisma.WithdrawalRequestUpdateInput,
+  ): Promise<DetailedWithdrawalRequest>
 }

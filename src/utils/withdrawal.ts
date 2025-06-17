@@ -1,4 +1,9 @@
-export function validateWithdrawal(amount: number, balanceUser: number, balanceUnit: number, allowsLoan: boolean): number {
+export function validateWithdrawal(
+  amount: number,
+  balanceUser: number,
+  balanceUnit: number,
+  allowsLoan: boolean,
+): number {
   if (amount < 0) {
     throw new Error('Negative values cannot be passed on withdrawals')
   }

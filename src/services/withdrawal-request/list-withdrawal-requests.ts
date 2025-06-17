@@ -1,5 +1,8 @@
 import { UserToken } from '@/http/controllers/authenticate-controller'
-import { WithdrawalRequestRepository, DetailedWithdrawalRequest } from '@/repositories/withdrawal-request-repository'
+import {
+  WithdrawalRequestRepository,
+  DetailedWithdrawalRequest,
+} from '@/repositories/withdrawal-request-repository'
 
 interface ListWithdrawalRequestsResponse {
   requests: DetailedWithdrawalRequest[]
@@ -11,7 +14,11 @@ export class ListWithdrawalRequestsService {
   async execute(user: UserToken): Promise<ListWithdrawalRequestsResponse> {
     if (!user.sub) throw new Error('User not found')
 
-    let where: any = {}
+    let where: {
+      unitId?: string
+      applicantId?: string
+      unit?: { organizationId?: string }
+    } = {}
     if (user.role === 'BARBER') {
       where = { applicantId: user.sub }
     } else if (user.role === 'MANAGER') {

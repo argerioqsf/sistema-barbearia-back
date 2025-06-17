@@ -13,7 +13,6 @@ export class CreateWithdrawalRequestService {
     private userRepository: BarberUsersRepository,
   ) {}
 
-
   async execute({ userId, amount }: CreateWithdrawalRequestRequest) {
     const user = await this.userRepository.findById(userId)
     if (!user) throw new Error('User not found')

@@ -2,7 +2,10 @@ import { makeCreateWithdrawalRequest } from '@/services/@factories/withdrawal-re
 import { FastifyRequest, FastifyReply } from 'fastify'
 import { z } from 'zod'
 
-export async function CreateWithdrawalRequestController(request: FastifyRequest, reply: FastifyReply) {
+export async function CreateWithdrawalRequestController(
+  request: FastifyRequest,
+  reply: FastifyReply,
+) {
   const bodySchema = z.object({ amount: z.number().positive() })
   const { amount } = bodySchema.parse(request.body)
   const userId = request.user.sub
