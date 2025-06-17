@@ -22,6 +22,7 @@ import { authRoute } from './http/controllers/auth/route'
 import { organizationRoute } from './http/controllers/organization/route'
 import { unitRoute } from './http/controllers/unit/route'
 import { sessionRoute } from './http/controllers/session/route'
+import { withdrawalRequestRoute } from './http/controllers/withdrawal-request/route'
 
 export const app = fastify()
 
@@ -123,6 +124,7 @@ app.register(barberUserRoute)
 app.register(couponRoute)
 app.register(cashRegisterRoute)
 app.register(transactionRoute)
+app.register(withdrawalRequestRoute)
 app.register(organizationRoute)
 app.register(unitRoute)
 app.register(saleRoute)

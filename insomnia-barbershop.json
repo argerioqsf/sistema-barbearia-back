@@ -597,6 +597,62 @@
       ]
     },
     {
+      "_id": "fld_withdraw_requests",
+      "_type": "request_group",
+      "parentId": "wrk_9bc2c94a4e7579532748a266ff7bafa9",
+      "name": "Withdraw Requests"
+    },
+    {
+      "_id": "req_create_withdraw_request",
+      "_type": "request",
+      "parentId": "fld_withdraw_requests",
+      "name": "Create withdraw request",
+      "method": "POST",
+      "url": "{{ baseURL }}/withdraw-requests",
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ token }}"
+        }
+      ]
+    },
+    {
+      "_id": "req_list_withdraw_requests",
+      "_type": "request",
+      "parentId": "fld_withdraw_requests",
+      "name": "List withdraw requests",
+      "method": "GET",
+      "url": "{{ baseURL }}/withdraw-requests",
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ token }}"
+        }
+      ]
+    },
+    {
+      "_id": "req_act_withdraw_request",
+      "_type": "request",
+      "parentId": "fld_withdraw_requests",
+      "name": "Act withdraw request",
+      "method": "PATCH",
+      "url": "{{ baseURL }}/withdraw-requests/{id}",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"status\": \"ACCEPTED\"\n}"
+      },
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ token }}"
+        }
+      ]
+    },
+    {
       "_id": "fld_organizations",
       "_type": "request_group",
       "parentId": "wrk_9bc2c94a4e7579532748a266ff7bafa9",

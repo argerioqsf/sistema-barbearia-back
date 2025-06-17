@@ -362,6 +362,13 @@ async function main() {
     },
   })
 
+  const withdrawalRequest = await prisma.withdrawalRequest.create({
+    data: {
+      applicant: { connect: { id: barber.id } },
+      unit: { connect: { id: mainUnit.id } },
+    },
+  })
+
   console.log({
     organization,
     organization2,
@@ -379,6 +386,7 @@ async function main() {
     itemCoupon,
     manager,
     owner2,
+    withdrawalRequest,
   })
 }
 

@@ -38,26 +38,34 @@ enum PaymentStatus {
   PENDING
 }
 
+enum WithdrawalRequestStatus {
+  ACCEPTED
+  REJECTED
+  WAITING
+}
+
 model User {
-  id                   String                @id @default(uuid())
-  name                 String
-  email                String                @unique
-  password             String
-  active               Boolean               @default(false)
-  organizationId       String
-  unitId               String
-  profile              Profile?
-  appointments         Appointment[]         @relation("ClientAppointments")
-  barberAppointments   Appointment[]         @relation("BarberAppointments")
-  sales                Sale[]
-  clientSales          Sale[]                @relation("SaleClient")
-  saleItems            SaleItem[]
-  transactions         Transaction[]
-  affectedTransactions Transaction[]         @relation("AffectedUser")
-  sessions             CashRegisterSession[]
-  passwordResetTokens  PasswordResetToken[]
-  ownedOrganizations   Organization[]        @relation("OrganizationOwner")
-  createdAt            DateTime              @default(now())
+  id                      String                @id @default(uuid())
+  name                    String
+  email                   String                @unique
+  password                String
+  active                  Boolean               @default(false)
+  organizationId          String
+  unitId                  String
+  profile                 Profile?
+  appointments            Appointment[]         @relation("ClientAppointments")
+  barberAppointments      Appointment[]         @relation("BarberAppointments")
+  sales                   Sale[]
+  clientSales             Sale[]                @relation("SaleClient")
+  saleItems               SaleItem[]
+  transactions            Transaction[]
+  affectedTransactions    Transaction[]         @relation("AffectedUser")
+  sessions                CashRegisterSession[]
+  withdrawalRequests      WithdrawalRequest[]   @relation("ApplicantWithdrawals")
+  actedWithdrawalRequests WithdrawalRequest[]   @relation("ActedWithdrawals")
+  passwordResetTokens     PasswordResetToken[]
+  ownedOrganizations      Organization[]        @relation("OrganizationOwner")
+  createdAt               DateTime              @default(now())
 
   organization Organization @relation(fields: [organizationId], references: [id])
   unit         Unit         @relation(fields: [unitId], references: [id])
@@ -88,6 +96,7 @@ model Appointment {
   barberId  String
   serviceId String
   unitId    String
+  saleId    String?
   date      DateTime
   hour      String
 
@@ -95,6 +104,7 @@ model Appointment {
   barber  User    @relation("BarberAppointments", fields: [barberId], references: [id])
   service Service @relation(fields: [serviceId], references: [id])
   unit    Unit    @relation(fields: [unitId], references: [id])
+  sale    Sale?   @relation(fields: [saleId], references: [id])
 
   @@map("appointments")
 }
@@ -145,10 +155,11 @@ model Transaction {
 
   sale Sale?
 
-  user         User                 @relation(fields: [userId], references: [id])
-  affectedUser User?                @relation("AffectedUser", fields: [affectedUserId], references: [id])
-  unit         Unit                 @relation(fields: [unitId], references: [id])
-  session      CashRegisterSession? @relation(fields: [cashRegisterSessionId], references: [id])
+  user              User                 @relation(fields: [userId], references: [id])
+  affectedUser      User?                @relation("AffectedUser", fields: [affectedUserId], references: [id])
+  unit              Unit                 @relation(fields: [unitId], references: [id])
+  session           CashRegisterSession? @relation(fields: [cashRegisterSessionId], references: [id])
+  WithdrawalRequest WithdrawalRequest[]
 
   @@map("transactions")
 }
@@ -173,6 +184,7 @@ model Sale {
   coupon      Coupon?              @relation(fields: [couponId], references: [id])
   session     CashRegisterSession? @relation(fields: [sessionId], references: [id])
   transaction Transaction?         @relation(fields: [transactionId], references: [id])
+  Appointment Appointment[]
 
   @@map("sales")
 }
@@ -278,5 +290,24 @@ model Unit {
   organization Organization @relation(fields: [organizationId], references: [id])
   Coupon       Coupon[]
 
+  withdrawalRequests WithdrawalRequest[]
+
   @@map("units")
+}
+
+model WithdrawalRequest {
+  id             String                  @id @default(uuid())
+  applicantId    String
+  unitId         String
+  transactionId  String?
+  status         WithdrawalRequestStatus @default(WAITING)
+  userWhoActedId String?
+  createdAt      DateTime                @default(now())
+
+  applicant    User         @relation("ApplicantWithdrawals", fields: [applicantId], references: [id])
+  unit         Unit         @relation(fields: [unitId], references: [id])
+  transaction  Transaction? @relation(fields: [transactionId], references: [id])
+  userWhoActed User?        @relation("ActedWithdrawals", fields: [userWhoActedId], references: [id])
+
+  @@map("withdrawal_requests")
 }
