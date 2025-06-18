@@ -17,6 +17,7 @@ import {
   Role,
   PasswordResetToken,
   Appointment,
+  Loan,
 } from '@prisma/client'
 import { ProductRepository } from '../../src/repositories/product-repository'
 import { CouponRepository } from '../../src/repositories/coupon-repository'
@@ -34,6 +35,7 @@ import { TransactionRepository } from '../../src/repositories/transaction-reposi
 import { OrganizationRepository } from '../../src/repositories/organization-repository'
 import { ProfilesRepository } from '../../src/repositories/profiles-repository'
 import { UnitRepository } from '../../src/repositories/unit-repository'
+import { LoanRepository } from '../../src/repositories/loan-repository'
 import { PasswordResetTokenRepository } from '../../src/repositories/password-reset-token-repository'
 import {
   AppointmentRepository,
@@ -1014,5 +1016,44 @@ export class InMemoryAppointmentRepository implements AppointmentRepository {
 
   async findById(id: string): Promise<DetailedAppointment | null> {
     return this.appointments.find((a) => a.id === id) ?? null
+  }
+}
+
+
+export class FakeLoanRepository implements LoanRepository {
+  constructor(public loans: Loan[] = []) {}
+
+  async create(data: Prisma.LoanCreateInput): Promise<Loan> {
+    const loan: Loan = {
+      id: randomUUID(),
+      amount: data.amount as number,
+      userId: (data.user as any).connect.id,
+      unitId: (data.unit as any).connect.id,
+      transactionId: (data.transaction as any).connect.id,
+      status: (data.status as any) ?? 'OPEN',
+      createdAt: new Date(),
+    }
+    this.loans.push(loan)
+    return loan
+  }
+
+  async findById(id: string): Promise<Loan | null> {
+    return this.loans.find((l) => l.id === id) ?? null
+  }
+
+  async update(id: string, data: Prisma.LoanUpdateInput): Promise<Loan> {
+    const loan = this.loans.find((l) => l.id === id)
+    if (!loan) throw new Error('Loan not found')
+    Object.assign(loan, data as any)
+    return loan
+  }
+
+  async findMany(where: Prisma.LoanWhereInput = {}): Promise<Loan[]> {
+    return this.loans.filter((l: any) => {
+      if (where.userId && l.userId !== where.userId) return false
+      if (where.unitId && l.unitId !== where.unitId) return false
+      if (where.status && l.status !== where.status) return false
+      return true
+    })
   }
 }

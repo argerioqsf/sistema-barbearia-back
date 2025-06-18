@@ -22,6 +22,7 @@ import { authRoute } from './http/controllers/auth/route'
 import { organizationRoute } from './http/controllers/organization/route'
 import { unitRoute } from './http/controllers/unit/route'
 import { sessionRoute } from './http/controllers/session/route'
+import { loanRoute } from './http/controllers/loan/route'
 
 export const app = fastify()
 
@@ -127,6 +128,7 @@ app.register(organizationRoute)
 app.register(unitRoute)
 app.register(saleRoute)
 app.register(reportRoute)
+app.register(loanRoute)
 app.register(configRoute)
 
 app.setErrorHandler((error, _, replay) => {

@@ -1,5 +1,5 @@
 generator client {
-  provider = "prisma-client-js"
+  provider      = "prisma-client-js"
   binaryTargets = ["native", "darwin-arm64", "linux-arm64-openssl-3.0.x"]
 }
 
@@ -56,6 +56,7 @@ model User {
   transactions         Transaction[]
   affectedTransactions Transaction[]         @relation("AffectedUser")
   sessions             CashRegisterSession[]
+  loans                Loan[]
   passwordResetTokens  PasswordResetToken[]
   ownedOrganizations   Organization[]        @relation("OrganizationOwner")
   createdAt            DateTime              @default(now())
@@ -141,17 +142,18 @@ model Transaction {
   type                  TransactionType
   description           String
   amount                Float
-  isLoan                Boolean       @default(false)
+  isLoan                Boolean         @default(false)
   receiptUrl            String?
   createdAt             DateTime        @default(now())
 
   saleId String?
-  sale   Sale?          @relation(fields: [saleId], references: [id])
+  sale   Sale?   @relation(fields: [saleId], references: [id])
 
   user         User                 @relation(fields: [userId], references: [id])
   affectedUser User?                @relation("AffectedUser", fields: [affectedUserId], references: [id])
   unit         Unit                 @relation(fields: [unitId], references: [id])
   session      CashRegisterSession? @relation(fields: [cashRegisterSessionId], references: [id])
+  loan         Loan?
 
   @@map("transactions")
 }
@@ -276,9 +278,31 @@ model Unit {
   transactions   Transaction[]
   sessions       CashRegisterSession[]
   users          User[]
+  loans          Loan[]
 
   organization Organization @relation(fields: [organizationId], references: [id])
   Coupon       Coupon[]
 
   @@map("units")
+}
+
+enum LoanStatus {
+  OPEN
+  PAID
+}
+
+model Loan {
+  id            String     @id @default(uuid())
+  amount        Float
+  userId        String
+  unitId        String
+  transactionId String     @unique
+  status        LoanStatus @default(OPEN)
+  createdAt     DateTime   @default(now())
+
+  user        User        @relation(fields: [userId], references: [id])
+  unit        Unit        @relation(fields: [unitId], references: [id])
+  transaction Transaction @relation(fields: [transactionId], references: [id])
+
+  @@map("loans")
 }
